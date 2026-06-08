@@ -345,35 +345,6 @@ up -d
 
 ---
 
-## 🔄 CI/CD Ready
-
-### GitHub Actions Example
-
-```yaml
-name: CI/CD Pipeline
-
-on:
-  push:
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build Images
-        run: docker-compose build
-
-      - name: Run Tests
-        run: make test
-
-      - name: Push Image
-        run: docker push yourregistry/backend:latest
-```
-
----
-
 ## 📚 Key Learnings
 
 ### Docker Skills
