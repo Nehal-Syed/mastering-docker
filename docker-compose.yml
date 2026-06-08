@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: mastering-docker-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - mastering-network
+    depends_on:
+      backend1:
+        condition: service_healthy
+      backend2:
+        condition: service_healthy
+      backend3:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend1:
+    build: ./backend
+    container_name: mastering-docker-backend-1
+    env_file:
+      - ./backend/.env  # Specify the path to .env in backend folder
+    environment:
+      INSTANCE_ID: "backend-1"
+      DB_HOST: host.docker.internal  # Override if needed
+    volumes:
+      - ./backend:/app
+    networks:
+      - mastering-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  backend2:
+    build: ./backend
+    container_name: mastering-docker-backend-2
+    env_file:
+      - ./backend/.env
+    environment:
+      INSTANCE_ID: "backend-2"
+      DB_HOST: host.docker.internal
+    volumes:
+      - ./backend:/app
+    networks:
+      - mastering-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  backend3:
+    build: ./backend
+    container_name: mastering-docker-backend-3
+    env_file:
+      - ./backend/.env
+    environment:
+      INSTANCE_ID: "backend-3"
+      DB_HOST: host.docker.internal
+    volumes:
+      - ./backend:/app
+    networks:
+      - mastering-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  mastering-network:
+    driver: bridge
+
+volumes:
+  nginx_logs:
